@@ -1,0 +1,587 @@
+# configuration file for ChemGen tools
+
+# RDKit tool configuration
+rdkit_tool:
+  mol_from_smiles:
+    smiles:
+      description: The SMILES representation of the molecule.
+    description: Creates an RDKit molecule object from a SMILES string.
+    example: |
+      Get Ethanol Mol object from SMILES string and get its properties.
+      mol = mol_from_smiles("CCO") # Ethanol
+      if mol:
+          print(f"Number of atoms:{mol.GetNumAtoms()}, Number of bonds:{mol.GetNumBonds()}")
+
+  mol_from_molfile:
+    filename:
+      description: (str) Path to the .mol file.
+    description: Reads a molecule from a Mol file.
+    example: |
+      Get Ethanol Mol object from Mol file.
+      mol = mol_from_molfile("Ethanol.mol")
+      if mol:
+          print(f"SMILES:{Chem.MolToSmiles(mol)},Number of atoms:{mol.GetNumAtoms()}, Number of bonds:{mol.GetNumBonds()}")
+
+  mol_from_molblock:
+    mol_block:
+      description: (str) The Mol block data as a string.
+    description: Reads a molecule from a Mol block.
+    example: |
+      Get Ethanol Mol object from Mol block.
+      mol_block = Chem.MolToMolBlock(Chem.MolFromSmiles("CCO")) # Generate Ethanol Mol block through RDkit
+      mol = mol_from_molblock(mol_block)
+      if mol:
+          print(f"SMILES:{Chem.MolToSmiles(mol)},Number of atoms:{mol.GetNumAtoms()}, Number of bonds:{mol.GetNumBonds()}")
+
+  draw_molecule:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule object.
+    description: Generates an image of a molecule.
+    example: |
+      未找到对应示例
+
+  read_sdf_file:
+    filename:
+      description: (str) Path to the .sdf file.
+    description: Reads molecules from an SDF file.
+    example: |
+      Get Ethanol Mol objects from SDF file.
+      mol = read_sdf_file("Ethanol.sdf")
+      if mol:
+          print(f"Number of molecules:{len(mol)},First molecule:{Chem.MolToSmiles(mol[0])}")
+
+  read_smiles_file:
+    filename:
+      description: (str) Path to the .smi file.
+    description: Reads molecules from a SMILES file.
+    example: |
+      Get Ethanol Mol objects from SMILES file.
+      #In your SMILES file,the first line must be String"SMILES Name",or it will not operate correctly.
+      mols = read_smiles_file("Ethanol.smi")
+      if mols:
+          print(f"SMILES:{Chem.MolToSmiles(mols[0])}, Number of atoms:{mols[0].GetNumAtoms()}, Number of bonds:{mols[0].GetNumBonds()}")
+
+  read_sdf_gzip:
+    filename:
+      description: (str) Path to the .sdf.gz file.
+    description: Reads molecules from an SDF file.
+    example: |
+      未找到对应示例
+
+  mol_to_smiles:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule object.
+    isomeric:
+      description: (bool) Whether to include stereochemistry information.
+    kekule:
+      description: (bool) Whether to output the Kekule form.
+    description: Converts an RDKit molecule to a SMILES string.
+    example: |
+      Get SMILES String of Benzene from Mol object in default parameters.
+      mol = Chem.MolFromSmiles("c1ccccc1") # Generate Benzene's Mol object through RDkit
+      smiles = mol_to_smiles(mol)
+      if smiles:
+          print(f"SMILES of Benzene:{smiles}")
+
+  mol_to_molblock:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule object.
+    description: Converts an RDKit molecule to a Mol block string.
+    example: |
+      Get Mol block of Benzene from Mol object.
+      mol = Chem.MolFromSmiles("c1ccccc1")
+      mol_block = mol_to_molblock(mol)
+      if mol_block:
+          print(f"Mol block information:{mol_block}")
+
+  add_hydrogens:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule object.
+    description: Adds explicit hydrogen atoms to a molecule.
+    example: |
+      Add Hydrogen atoms to Ethanol.
+      mol = Chem.MolFromSmiles("CCO")
+      mol_with_hydrogens = add_hydrogens(mol)
+      if mol_with_hydrogens:
+          print(f"Number of atoms before adding hydrogens:{mol.GetNumAtoms()}\n"
+                f"Number of atoms after adding hydrogens:{mol_with_hydrogens.GetNumAtoms()}")
+
+  remove_hydrogens:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule object.
+    description: Removes explicit hydrogen atoms from a molecule.
+
+  kekulize_molecule:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule object.
+    description: Kekulizes a molecule, converting aromatic bonds to alternating single/double bonds.
+
+  sanitize_molecule:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule object.
+    description: Sanitizes a molecule, ensuring valence rules and aromaticity are properly applied.
+
+  compute_2d_coords:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule object.
+    description: Computes 2D coordinates for a molecule.
+
+  compute_3d_coords:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule object.
+    random_seed:
+      description: (int) Random seed for reproducibility.
+    description: Computes 3D coordinates for a molecule using ETKDG method.
+
+  write_sdf_file:
+    filename:
+      description: (str) Path to the output .sdf file.
+    mols:
+      description: (list[rdkit.Chem.rdchem.Mol]) List of molecules to write.
+    description: Writes molecules to an SDF file.
+
+  mol_from_png_string:
+    png_data:
+      description: (bytes) PNG image data containing molecule metadata.
+    description: Extracts a molecule from PNG image metadata.
+
+  mols_from_png_string:
+    png_data:
+      description: (bytes) PNG image data containing multiple molecule metadata.
+    description: Extracts multiple molecules from PNG image metadata.
+
+  delete_substructure:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule.
+    substructure:
+      description: (rdkit.Chem.rdchem.Mol) The substructure to remove.
+    description: Removes a substructure from a molecule.
+
+  replace_substructure:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule.
+    substructure:
+      description: (rdkit.Chem.rdchem.Mol) The substructure to replace.
+    replacement:
+      description: (rdkit.Chem.rdchem.Mol) The replacement structure.
+    description: Replaces a substructure in a molecule.
+
+  replace_sidechains:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule.
+    core:
+      description: (rdkit.Chem.rdchem.Mol) The core structure.
+    description: Removes sidechains from a molecule based on a core.
+
+  replace_core:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule.
+    core:
+      description: (rdkit.Chem.rdchem.Mol) The core structure to remove.
+    label_by_index:
+      description: (bool) Whether to label sidechains based on attachment index.
+    description: Removes the core of a molecule, leaving labeled sidechains.
+
+  get_molecule_fragments:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule.
+    description: Splits a molecule into fragments.
+
+  murcko_scaffold:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule.
+    description: Extracts the Murcko scaffold from a molecule.
+
+  draw_highlighted_substructure:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule.
+    query:
+      description: (rdkit.Chem.rdchem.Mol) The substructure query.
+    filename:
+      description: (str) Output image file path.
+    description: Highlights a substructure in a molecule and saves the image.
+
+  highlight_multiple_substructures:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule.
+    queries:
+      description: (list[rdkit.Chem.rdchem.Mol]) List of substructure queries.
+    filename:
+      description: (str) Output image file path.
+    description: Highlights multiple substructures in a molecule with different colors and saves the image.
+
+  find_mcs:
+    mols:
+      description: (list[rdkit.Chem.rdchem.Mol]) List of molecules to compare.
+    ring_matches_ring_only:
+      description: (bool) If True, ensures that ring atoms only match ring atoms.
+    complete_rings_only:
+      description: (bool) If True, ensures that the MCS contains complete rings.
+    timeout:
+      description: (int) Timeout in seconds for the search.
+    description: Finds the maximum common substructure among a list of molecules.
+
+  find_mces:
+    mol1:
+      description: (rdkit.Chem.rdchem.Mol) First molecule.
+    mol2:
+      description: (rdkit.Chem.rdchem.Mol) Second molecule.
+    description: Finds the maximum common edge substructure between two molecules.
+
+  find_mces_with_options:
+    mol1:
+      description: (rdkit.Chem.rdchem.Mol) First molecule.
+    mol2:
+      description: (rdkit.Chem.rdchem.Mol) Second molecule.
+    similarity_threshold:
+      description: (float) Minimum similarity threshold for MCES detection.
+    min_frag_size:
+      description: (int) Minimum fragment size to consider in MCES.
+    complete_aromatic_rings:
+      description: (bool) Whether to require complete aromatic rings.
+    description: Finds the Maximum Common Edge Substructure (MCES) between two molecules with additional options.
+
+  get_rdkit_fingerprint:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The molecule to fingerprint.
+    fp_size:
+      description: (int) Fingerprint size in bits.
+    description: Computes the RDKit topological fingerprint for a molecule.
+
+  tanimoto_similarity:
+    fp1:
+      description: (rdkit.DataStructs.ExplicitBitVect) First fingerprint.
+    fp2:
+      description: (rdkit.DataStructs.ExplicitBitVect) Second fingerprint.
+    description: Computes the Tanimoto similarity between two fingerprints.
+
+  dice_similarity:
+    fp1:
+      description: (rdkit.DataStructs.ExplicitBitVect) First fingerprint.
+    fp2:
+      description: (rdkit.DataStructs.ExplicitBitVect) Second fingerprint.
+    description: Computes the Dice similarity between two fingerprints.
+
+  get_morgan_fingerprint:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The molecule to fingerprint.
+    radius:
+      description: (int) Radius of the circular environment.
+    fp_size:
+      description: (int) Fingerprint size in bits.
+    description: Computes the Morgan fingerprint (circular fingerprint) for a molecule.
+
+  get_maccs_keys_fingerprint:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The molecule to fingerprint.
+    description: Computes the MACCS keys fingerprint for a molecule.
+
+  get_atom_pair_fingerprint:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The molecule to fingerprint.
+    description: Computes the Atom-Pair fingerprint for a molecule.
+
+  get_topological_torsion_fingerprint:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The molecule to fingerprint.
+    description: Computes the Topological Torsion fingerprint for a molecule.
+
+  explain_morgan_fingerprint:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The molecule.
+    radius:
+      description: (int) Radius of the circular environment.
+    description: Generates an explanation for the Morgan fingerprint, detailing atom contributions.
+
+  draw_morgan_bit:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The molecule.
+    bit_id:
+      description: (int) The bit ID to visualize.
+    bit_info:
+      description: (dict) Dictionary containing bit information from `explain_morgan_fingerprint`.
+    filename:
+      description: (str) Output image file path.
+    description: Draws an image highlighting the environment of a specific Morgan fingerprint bit.
+
+  draw_rdkit_bit:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The molecule.
+    bit_id:
+      description: (int) The bit ID to visualize.
+    bit_info:
+      description: (dict) Dictionary containing bit information from RDKit fingerprinting.
+    filename:
+      description: (str) Output image file path.
+    description: Draws an image highlighting the bond path of a specific RDKit fingerprint bit.
+
+  pick_diverse_molecules:
+    mols:
+      description: (list[rdkit.Chem.rdchem.Mol]) List of RDKit molecules.
+    num_picks:
+      description: (int) Number of diverse molecules to pick.
+    radius:
+      description: (int) Radius for Morgan fingerprint generation.
+    seed:
+      description: (int) Random seed for reproducibility.
+    description: Selects a diverse set of molecules using the MaxMin algorithm.
+
+  get_similarity_map:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) Target molecule.
+    ref_mol:
+      description: (rdkit.Chem.rdchem.Mol) Reference molecule.
+    fp_type:
+      description: (str) Type of fingerprint ('bv' for bit vector, 'count' for count vector).
+    description: Generates a similarity map highlighting atomic contributions.
+
+  get_atomic_weights:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) Target molecule.
+    ref_mol:
+      description: (rdkit.Chem.rdchem.Mol) Reference molecule.
+    description: Retrieves atomic contribution weights for similarity mapping.
+
+  compute_gasteiger_charges:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule.
+    description: Computes Gasteiger partial charges for a molecule.
+
+  get_partial_charge:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule.
+    atom_idx:
+      description: (int) Atom index.
+    description: Retrieves the Gasteiger charge of a specific atom.
+
+  calculate_descriptor:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule.
+    descriptor:
+      description: (str) Name of the descriptor.
+    description: Computes a specified molecular descriptor.
+
+  calculate_all_descriptors:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule.
+    description: Computes all available molecular descriptors.
+
+  run_reaction:
+    reactants:
+      description: (list[rdkit.Chem.rdchem.Mol]) List of reactant molecules.
+    reaction_smarts:
+      description: (str) SMARTS string defining the reaction.
+    description: Applies a chemical reaction to a set of reactants.
+
+  run_reaction_from_file:
+    reactants:
+      description: (list[rdkit.Chem.rdchem.Mol]) List of reactant molecules.
+    rxn_file:
+      description: (str) Path to the MDL RXN file.
+    description: Applies a chemical reaction defined in an MDL RXN file.
+
+  draw_reaction:
+    reaction_smarts:
+      description: (str) SMARTS string defining the reaction.
+    filename:
+      description: (str) Output image file path.
+    description: Draws a chemical reaction and saves it as an image.
+
+  draw_reaction_highlighted:
+    reaction_smarts:
+      description: (str) SMARTS string defining the reaction.
+    filename:
+      description: (str) Output image file path.
+    description: Draws a chemical reaction with reactant highlights and saves it as an image.
+
+  rgroup_decompose_multiple_cores:
+    cores:
+      description: (list[rdkit.Chem.rdchem.Mol]) List of core molecules.
+    mols:
+      description: (list[rdkit.Chem.rdchem.Mol]) List of molecules to decompose.
+    description: Performs R-group decomposition using multiple core scaffolds.
+
+  get_bit_vector:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule.
+    sparse:
+      description: (bool) Whether to use a SparseBitVect (True) or ExplicitBitVect (False).
+    radius:
+      description: (int) Morgan fingerprint radius.
+    bv_size:
+      description: (int) Bit vector size.
+    description: Generates a bit vector fingerprint for a molecule.
+
+  edit_atom_in_molecule:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule.
+    atom_idx:
+      description: (int) Index of the atom to modify.
+    atomic_num:
+      description: (int) New atomic number.
+    description: Edits an atom in a molecule, changing its atomic number.
+
+  batch_edit_molecule:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule.
+    atom_removals:
+      description: (list[int]) List of atom indices to remove.
+    bond_removals:
+      description: (list[tuple[int, int]]) List of bond (start, end) atom pairs to remove.
+    description: Performs batch edits on a molecule by removing specified atoms and bonds.
+
+  apply_lipinski_rule_of_five:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule.
+    description: Checks if a molecule satisfies Lipinski's Rule of Five.
+
+  filter_pains:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule.
+    description: Checks if a molecule contains PAINS (Pan-Assay Interference Compounds) substructures.
+
+  filter_nih:
+    mol:
+      description: (rdkit.Chem.rdchem.Mol) The RDKit molecule.
+    description: Checks if a molecule contains NIH filter substructures (reactive or undesirable).
+
+# PubChem tool configuration
+pubchem_tool:
+  get_compounds:
+    identifier:
+      description: (str) The compound identifier (e.g., CID, name, SMILES).  This is your search term.
+    namespace:
+      description: |
+        (str) The identifier type. Possible values:
+        - 'cid': PubChem Compound Identifier. A unique integer assigned to each compound.
+        - 'name': Compound name (e.g., "Aspirin").
+        - 'smiles': SMILES string representing the compound's structure.
+        - 'sdf': SDF (Structure Data Format) string (multiline). Rarely used as input.
+        - 'inchi': InChI string (International Chemical Identifier).
+        - 'inchikey': InChIKey, a hashed version of the InChI.
+        - 'formula': Molecular formula (e.g., "C9H8O4").
+    searchtype:
+      description: |
+        (str) Advanced search type (for structure searches). Possible values:
+        - 'substructure': Finds compounds containing the given structure as a substructure. Use with SMILES, InChI.
+        - 'superstructure': Finds compounds that are substructures of the given structure. Use with SMILES, InChI.
+        - 'similarity': Finds compounds similar to the given structure. Use with SMILES, InChI, CID.
+    as_dataframe:
+      description: (bool) Return results as a pandas DataFrame.
+    \**kwargs:
+      description: (Any) Additional keyword arguments passed to `pubchempy.get_compounds`. See pubchempy documentation for details.
+    description: Retrieve compound records from PubChem.
+
+  get_substances:
+    identifier:
+      description: (str) The substance identifier (e.g., SID, name, source ID).
+    namespace:
+      description: |
+        (str) The identifier type. Possible values:
+        - 'sid': PubChem Substance Identifier (a unique integer).
+        - 'name': Substance name.
+        - 'sourceid/<source name>': The ID used by the data depositor (source). Format is "sourceid/sourcename".
+    as_dataframe:
+      description: (bool) Return results as a pandas DataFrame.
+    description: Retrieve substance records from PubChem.  Substances are the raw deposited data.
+
+  get_assays:
+    identifier:
+      description: (str) The assay identifier (typically the AID).
+    namespace:
+      description: |
+        (str) The identifier type. Possible values:
+        - 'aid': PubChem Assay Identifier (a unique integer).
+    description: Retrieve assay records from PubChem.  Assays describe bioactivity experiments.
+
+  get_properties:
+    properties:
+      description: |
+        (Union[str, List[str]]) A single property name (string) or a list of property names.
+        Example: ['MolecularFormula', 'MolecularWeight', 'CanonicalSMILES']
+        Available properties for Compounds can be found as attributes of the Compound class (e.g., 'molecular_formula').
+    identifier:
+      description: (str) The identifier (e.g., CID, SID, AID).
+    namespace:
+      description: (str) The identifier type. Possible values depend on the type of record being retrieved. See get_compounds(), get_substances(), get_assays() for valid namespaces.
+    searchtype:
+      description: (str) Advanced search type for structure-based searches (same as in get_compounds).
+    as_dataframe:
+      description: (bool) Return results as a pandas DataFrame.
+    description: Retrieve specified properties for compounds, substances, or assays from PubChem. This function is more general, getting properties instead of entire record objects.
+
+  compound_from_cid:
+    cid:
+      description: (int) The PubChem Compound Identifier (CID).
+    description: Create a Compound object from a PubChem Compound Identifier (CID).
+
+  substance_from_sid:
+    sid:
+      description: (int) The PubChem Substance Identifier (SID).
+    description: Create a Substance object from a PubChem Substance Identifier (SID).
+
+  assay_from_aid:
+    aid:
+      description: (int) The PubChem Assay Identifier (AID).
+    description: Create an Assay object from a PubChem Assay Identifier (AID).
+
+  compounds_to_frame:
+    compounds:
+      description: (List[pcp.Compound]) A list of Compound objects.
+    properties:
+      description: (List[str], optional) A list of specific properties to include.  If None, includes many common properties, but not those requiring extra requests (synonyms, sids, aids).
+    description: Convert a list of Compound objects to a pandas DataFrame.
+
+  substances_to_frame:
+    substances:
+      description: (List[pcp.Substance]) A list of Substance objects.
+    properties:
+      description: (List[str], optional) A list of specific properties to include. If None, includes many common properties, but not those requiring extra requests (cids, aids).
+    description: Convert a list of Substance objects to a pandas DataFrame.
+
+  get_compound_properties:
+    compound:
+      description: (pcp.Compound) The Compound object.
+    properties:
+      description: (List[str], optional) A list of property names to retrieve. If None, returns a dictionary with many default properties (but *not* synonyms, sids, aids, which require extra requests). See the Compound class attributes for a list of possible values.
+    description: Retrieves specified properties from a single Compound object.  This is useful if you already *have* a Compound object and want to get specific data from it without re-querying PubChem.
+
+  get_compound_synonyms:
+    compound:
+      description: (pcp.Compound) The Compound object for which to get synonyms.
+    description: Gets the synonyms for a given compound. (Requires an extra request)
+
+  get_compound_sids:
+    compound:
+      description: (pcp.Compound) The Compound object for which to get sids.
+    description: Gets the sids for a given compound. (Requires an extra request)
+
+  get_compound_aids:
+    compound:
+      description: (pcp.Compound) The Compound object for which to get aids.
+    description: Gets the aids for a given compound. (Requires an extra request)
+
+  get_substance_properties:
+    substance:
+      description: (pcp.Substance) The Substance object.
+    properties:
+      description: (List[str], optional) A list of specific properties to include. If None, includes many common properties.
+    description: Retrieves properties from a Substance object.
+
+  get_substance_cids:
+    substance:
+      description: (pcp.Substance) The Substance object for which to get cids.
+    description: Gets the cids for a given substance. (Requires an extra request)
+
+  get_substance_standardized_compound:
+    substance:
+      description: (pcp.Substance) The Substance object from which to get the standardized compound.
+    description: Gets standardized compound from substance. (Requires an extra request)
+
+  get_assay_properties:
+    assay:
+      description: (pcp.Assay) The Assay object from which properties are to be retrieved.
+    properties:
+      description: (List[str]) A list of property names to retrieve. If None, default properties will be retrieved.
+    description: Retrieves properties from an Assay object.
+
