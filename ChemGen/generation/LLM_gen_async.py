@@ -27,12 +27,8 @@ Your goal is to produce a diverse set of instructions (or questions) based on a 
 2. **Instruction Generation:** Create exactly `{n}` unique instructions related to the task. The instructions should be diverse in phrasing and complexity.
 3. **Clarity & Context:** Ensure each instruction is clear and provides enough context for an AI model to generate a meaningful response.
 4. **Format:** Return the instructions strictly as a Python-style list of strings.
-5. **Generation Mode:** There are two possible modes for generating instructions: metadata, free.
-Metadata: Your instructions should strictly adhere to the metadata provided below.
-Free: Your instructions should only focus on the task, task description and possible constraints.
-**Mode**: {mode}
-6. **Custom Constraint:** {custom_constraint}
-
+5. **Custom Constraint:** {custom_constraint}
+6. **Metadata:** If metadata is provided, generate the instructions with the metadata included.
 
 ### **Example:**
 #### **User Task:** Toxicity Prediction  
@@ -51,11 +47,12 @@ INSTRUCTION_PLANNING_PROMPT = """
 You are an advanced AI assistant tasked with planning how to solve a given instruction. Your goal is to **break down the problem into structured steps** that can be executed using external tools or reasoning. You should **not** provide an answer—only a plan.
 
 ### **Instructions:**
-1. **Understand the Instruction:** Carefully analyze the given instruction to determine its requirements.
-2. **Identify Key Elements:** Identify key components such as subject, method, and expected output.
-3. **Break Down into Steps:** Generate a structured plan consisting of logical steps that guide the problem-solving process.
-4. **Ensure Tool Compatibility:** If an external tool is likely required (e.g., a chemical database, scientific literature, mathematical solver), indicate it explicitly.
-5. **Format:** Return the planning steps strictly as a Python-style list of strings.
+1. **Metadata:** If metadata is provided, generate the planning steps adhere to the metadata's requirements.
+2. **Understand the Instruction:** Carefully analyze the given instruction to determine its requirements.
+3. **Identify Key Elements:** Identify key components such as subject, method, and expected output.
+4. **Break Down into Steps:** Generate a structured plan consisting of logical steps that guide the problem-solving process.
+5. **Ensure Tool Compatibility:** If an external tool is likely required (e.g., a chemical database, scientific literature, mathematical solver), indicate it explicitly.
+6. **Format:** Return the planning steps strictly as a Python-style list of strings.
 
 Now, generate a structured plan for the following instruction:
 
@@ -68,11 +65,13 @@ IDEAL_TOOL_DESCRIPTION_PROMPT = """
 Your goal is to describe the functionalities of these tools concisely, ensuring that each tool serves **one specific purpose**.
 
 ### **Instructions:**
-1. **Analyze the Planning Steps:** Carefully review the provided planning steps to determine what kind of external tools would be needed to complete them.
-2. **Define the Ideal Toolset:** Describe **only the necessary** tools, ensuring that each tool performs only **one function**.
-3. **Keep Descriptions Concise:** Each tool description should be brief and focused on its function.
-4. **Limit the Number of Tools:** Minimize the number of tools by **combining related functionalities** into single tools where applicable.
-5. **Format:** Return the tool descriptions strictly as a Python-style list of strings.
+1. **Metadata:** If metadata is provided, generate the tool descriptions adhere to the metadata's requirements.
+2. **Analyze the Planning Steps:** Carefully review the provided planning steps to determine what kind of external tools would be needed to complete them.
+3. **Define the Ideal Toolset:** Describe **only the necessary** tools, ensuring that each tool performs only **one function**.
+4. **Keep Descriptions Concise:** Each tool description should be brief and focused on its function.
+5. **Limit the Number of Tools:** Minimize the number of tools by **combining related functionalities** into single tools where applicable.
+6. **Format:** Return the tool descriptions strictly as a Python-style list of strings.
+
 
 Now, generate a structured list of ideal tool descriptions for the following planning steps:
 
@@ -139,8 +138,8 @@ async def generate_tool_descriptions(planning_steps: list, model: str = "gpt-4o"
         list: A structured list of tool descriptions.
     """
     formatted_steps = "\n".join(f"- {step}" for step in planning_steps)
-    metadata = metadata or "No additional metadata."
-    user_prompt = f"Metadata: {metadata}\n**Planning Steps:**\n{formatted_steps}\n\n{IDEAL_TOOL_DESCRIPTION_PROMPT}"
+    metadata = metadata if metadata else "No additional metadata."
+    user_prompt = f"**Metadata:**\n{metadata}\n**Planning Steps:**\n{formatted_steps}\n\n{IDEAL_TOOL_DESCRIPTION_PROMPT}"
 
     response = await api_tools.get_response(
         prompt=user_prompt,

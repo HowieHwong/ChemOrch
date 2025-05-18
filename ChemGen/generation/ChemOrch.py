@@ -25,12 +25,12 @@ Tool_Selection_Prompt = """
 I will give you the task, a tool name, and its description.
 Your goal is to confirm whether the tool can be used to solve the task.
 Instructions:
-1. You need to extract the final targets of the task and determine whether it requires a specific
+1. If metadata is provided, your choice should **prioritize the metadata's requirements**.
+2. You need to extract the final targets of the task and determine whether it requires a specific
 tool or multiple tools.
-2. First, you need to focus on solving the final targets of the task.
-3. Second, if the task requires multiple tools and this tool excels in one aspect of the task, it is
+3. First, you need to focus on solving the final targets of the task.
+4. Second, if the task requires multiple tools and this tool excels in one aspect of the task, it is
 also useful.
-4. If metadata is provided, your choice of tool should be based on the metadata's requirements.
 Output format:
 1. If the tool can be used for solving the task, return the tool index only. It should be an integer.
 2. If the tool can't be used for solving the task, return the string "no" only. It should be a string.
@@ -45,19 +45,20 @@ the tool may not be an expert in the task.
 Your goal is to check the tools and confirm whether they need to remove some indirectly
 related tools.
 Strategies for tool selection:
-1. Pay attention to the tools' names. The tool name contains its function, and if the task needs
+1. **Check if metadata is provided and prioritize the metadata's requirements.**
+2. Pay attention to the tools' names. The tool name contains its function, and if the task needs
 the tool, the name often appears in the tool description.
-2. Throw light on the task content. The content may clarify what tools or what kinds of tools
+3. Throw light on the task content. The content may clarify what tools or what kinds of tools
 are needed for the task.
 Instructions:
-1. Read the tools list and the task carefully, compare the tools' functions with the task, and
+1. If metadata is provided, your choice of tool should **prioritize the metadata's requirements**.
+2. Read the tools list and the task carefully, compare the tools' functions with the task, and
 check if the task marks specific tools to use.
-2. Analyse the task and extract the final targets of the task. Regarding the tools can't solve the
+3. Analyse the task and extract the final targets of the task. Regarding the tools can't solve the
 final targets of the task as useless tools, you should focus on the final targets of the task.
-3. If the number of tools overnumbers the threshold:{threshold_for_tool_distilling}, you
+4. If the number of tools overnumbers the threshold:{threshold_for_tool_distilling}, you
 should think more about finding and removing indirectly related tools. But if there is only one tool left,
 you should think more about retaining it.
-4. If metadata is provided, your choice of tool should be based on the metadata's requirements.
 Output format:
 1. If the indirectly related tools are found, please return only the most indirectly related tool
 index.
@@ -69,7 +70,7 @@ I will give you a task and the functions and parameters, with descriptions, need
 the task.
 Your goal is to fill the parameters with specific and correct values used to solve the task.
 Instructions:
-1. You need to read the task carefully and determine the parameters’ values needed for solving
+1. You need to read the task carefully and determine the parameters' values needed for solving
 the task.
 2. Fill the parameters with specific values and return in this format:
 "parameter name: parameter value".
@@ -209,7 +210,7 @@ async def instruction_generation(task: str, task_description: str, mode: str, in
         elif metadata_type == "csv":
             with open(metadata, 'r') as f:
                 df = pd.read_csv(f)
-                metadata_gen = df.to_json(orient='records')
+                metadata_gen = df.to_dict(orient='records')
         elif metadata_type == "txt":
             metadata_gen = metadata
         else: metadata_gen = None
@@ -444,6 +445,7 @@ async def tool_selection(instruction: str, tool_descriptions: list[str], k: int 
         metadata = "No additional metadata provided."
 
     print(f"metadata: {metadata}\n\n")
+
     for tool in selected_tools_with_description_final:
         tool_selection_prompts.append(f"metadata: {metadata}\nraw task: {instruction}\nThe tool you need to judge: {tool}")
 
@@ -455,6 +457,12 @@ async def tool_selection(instruction: str, tool_descriptions: list[str], k: int 
             tools_list.append(response)
         else:
             tools_list.append(int(response))
+    
+    name = []
+    for idx in tools_list:
+        if idx != "no":
+            name.append(tools_info[idx]['tool'])
+    print(f"selected tools: {name}")
        
     return await tools_distilling(instruction, tools_list)
 
@@ -473,9 +481,9 @@ async def tools_distilling(instruction: str, tools_list: list[int], metadata: st
             )
     mark = "to be confirmed"
     removed_tools = []
-    metadata = metadata or "No additional metadata provided."
+    metadata = metadata if metadata != None else "No additional metadata provided."
     while mark != "no":
-        prompt = f"{Tool_Distillation_Prompt}\nmetadata: {metadata}\nraw task: {instruction}\nThe tools you need to check: {tools}\n"
+        prompt = f"metadata: {metadata}\nraw task: {instruction}\nThe tools you need to check: {tools}\n{Tool_Distillation_Prompt}"
         mark = await chat_with_CoT_model(user_prompt=prompt, model=model)
         print(f"mark for distilling: {mark}")
         if mark != "no":
@@ -601,10 +609,10 @@ async def tool_calling(instruction: str, planning_steps: list[str], tool_list: l
             if metadata_type == "pickle":
                 Effectiveness_Checking_Prompt = Effectiveness_Checking_Prompt.format(website = tool['documentation'])
             else:
-                website = """1. PubChemPy documentation(this is used in the pubchem_tool):
-https://pubchempy.readthedocs.io/en/latest/
-2. RDKit documentation(this is used in the rdkit_tool):
-https://www.rdkit.org/docs/index.html"""
+                website = """1. PubChemPy documentation(this is used in the pubchem_tool):\
+                https://pubchempy.readthedocs.io/en/latest/\
+                2. RDKit documentation(this is used in the rdkit_tool):\
+                https://www.rdkit.org/docs/index.html"""
                 Effectiveness_Checking_Prompt = Effectiveness_Checking_Prompt.format(website = website)
     
             while response[0:6] != "useful" and retrieval > 0:
@@ -681,16 +689,24 @@ async def tools_retrieval(instruction: str, RG_metadata_type: str = None, RG_met
     Returns:
         str: The answer generated by the tools retrieval system.
     """
-    if RG_metadata_content:
+    if RG_metadata_type == "text":
         metadata = RG_metadata_content
+    elif RG_metadata_type == "pickle":
+        with open(RG_metadata_content, 'rb') as f:
+            metadata = pickle.load(f)
     else:
         metadata = None
-
-    planning_steps = await generate_planning_steps(instruction, metadata = metadata)
-    tool_descriptions = await generate_tool_descriptions(planning_steps, metadata = metadata)
-    tools_list = await tool_selection(instruction, tool_descriptions, metadata=metadata)
-    print(f"tools_list: {[tools_info[tool]['tool'] for tool in tools_list if tool != 'no']}")
-    tool_calling_result =await tool_calling(instruction, planning_steps, tools_list, metadata=metadata, error_fixing_num=error_fixing_num, effectiveness_checking_num=effectiveness_confirmation_num, diversity_generation=diversity_generation)
+    
+    if RG_metadata_type == "pickle":
+        planning_steps = await generate_planning_steps(instruction)
+        tools_list = None
+    else:
+        planning_steps = await generate_planning_steps(instruction, metadata = metadata)
+        tool_descriptions = await generate_tool_descriptions(planning_steps, metadata = metadata)
+        tools_list = await tool_selection(instruction, tool_descriptions, metadata=metadata)
+        print(f"tools_list: {[tools_info[tool]['tool'] for tool in tools_list if tool != 'no']}")
+        
+    tool_calling_result =await tool_calling(instruction, planning_steps, tools_list, metadata=metadata, metadata_type=RG_metadata_type, error_fixing_num=error_fixing_num, effectiveness_checking_num=effectiveness_confirmation_num, diversity_generation=diversity_generation)
 
     prompt = f"{Web_Search_Prompt}\n\nTask: {instruction}\nPlanning steps: {planning_steps}"
      
@@ -709,7 +725,7 @@ async def tools_retrieval(instruction: str, RG_metadata_type: str = None, RG_met
     answer = await answer_generation(instruction, tool_calling_result, model="gpt-4o")
     return await polish(instruction, answer)
         
-async def instruction_response_pair_generation(user_query: str, instruction: str, output_file_path: str, idx: int, metadata: str = None):
+async def instruction_response_pair_generation(user_query: str, instruction: str, output_file_path: str, idx: int, metadata: str = None, metadata_type: str = None):
     """
     Generate the instruction response pair for the given user query and instruction and save it to a file.
     
@@ -725,7 +741,7 @@ async def instruction_response_pair_generation(user_query: str, instruction: str
     
     instruction_response_pairs = []
      
-    tools_retrieval_result = await tools_retrieval(instruction, RG_metadata_content=metadata)
+    tools_retrieval_result = await tools_retrieval(instruction, RG_metadata_content=metadata, RG_metadata_type=metadata_type)
     instruction_response_pairs.append(
         {
             "task": user_query,
@@ -745,7 +761,7 @@ async def instruction_response_pair_generation(user_query: str, instruction: str
 
     print(f"index: {idx}, instruction response pair has been created successfully.\n")
     
-async def concurrent_instruction_response_pair_generation(file_path: str, output_file_path: str, metadata: str = None, concurrent_num: int = 10):
+async def concurrent_instruction_response_pair_generation(file_path: str, output_file_path: str, metadata: str = None, metadata_type: str = None, concurrent_num: int = 10):
     """
     Generate the instruction response pairs concurrently for the given file.
 
@@ -763,7 +779,7 @@ async def concurrent_instruction_response_pair_generation(file_path: str, output
     
     tasks = []
     for idx, item in enumerate(data):
-        tasks.append(asyncio.create_task(instruction_response_pair_generation(item['task'], item['instruction'], output_file_path, idx, metadata=metadata)))
+        tasks.append(asyncio.create_task(instruction_response_pair_generation(item['task'], item['instruction'], output_file_path, idx, metadata=metadata, metadata_type=metadata_type)))
         if len(tasks) == concurrent_num or idx == len(data) - 1:
             await asyncio.gather(*tasks)
             tasks = []
@@ -786,7 +802,7 @@ async def ChemOrch(task: str, task_description: str, IGmode: str, RGmode: str, i
     
     await instruction_generation(task, task_description, IGmode, instruction_file, num = num, batchsize = batchsize, metadata = IG_metadata_content, metadata_type = IG_metadata_type, constraint = constraint)
    
-    await concurrent_instruction_response_pair_generation(instruction_file, output_file, metadata=RG_metadata_content)
+    await concurrent_instruction_response_pair_generation(instruction_file, output_file, metadata=RG_metadata_content, metadata_type = RG_metadata_type)
     
     
     
@@ -795,17 +811,15 @@ async def ChemOrch(task: str, task_description: str, IGmode: str, RGmode: str, i
 #Example usage:
 if __name__ == '__main__':
     
-
-    #asyncio.run(concurrent_instruction_response_pair_generation("experiment/baseline_contrast/contrast_dataset_v3.0.json", "experiment/baseline_contrast/framework_output.json", concurrent_num=10))
-    
-    task = "Name Prediction"
-    task_description = "Predict the IUPAC name of the given molecular SMILES."
-    instruction_file = "ChemGen/data/test_intructions.json"
-    output_file = "ChemGen/data/test_output.json"
-    ig_metadata_content = None
-    constraint = "Your instruction should provide specific value and focus on the specific task."
-    rg_metadata_content = None
-    
+    task = "SMILES conversion"
+    task_description = "predict the SMILES string of a given compound."
+    instruction_file = "ChemGen/results/test_IG_pkl.json"
+    output_file = "ChemGen/results/test_IG_pkl_output.json"
+    ig_metadata_type = "txt"
+    ig_metadata_content = "ethanol, benzene, aspirin"
+    constraint = "Your instruction should provide specific value and focus on the specific task.Please use the provided tool in metadata for solving the task."
+    rg_metadata_type = "pickle"
+    rg_metadata_content = "ChemGen/metadata/additional_tool.pickle"
     """
     task = "Property prediction"
     task_description = "Predict the blood-brain barrier penetration of a given compound."
@@ -815,9 +829,9 @@ if __name__ == '__main__':
     constraint = "Please generate instructions adhere to the metadata and keep the sequence of instructions consistent with metadata infomation."
     rg_metadata_content = "Please select suitable tools to solve the task as far as possible."
     """
-    asyncio.run(ChemOrch(task, task_description, "metadata", "text", instruction_file, output_file, num = 10, batchsize = 10,
-                         IG_metadata_type = None, IG_metadata_content = None,
-                        RG_metadata_type = None, RG_metadata_content = None,
+    asyncio.run(ChemOrch(task, task_description, "metadata", "text", instruction_file, output_file, num = 2, batchsize = 10,
+                         IG_metadata_type = ig_metadata_type, IG_metadata_content = ig_metadata_content,
+                        RG_metadata_type = rg_metadata_type, RG_metadata_content = rg_metadata_content,
                          constraint = constraint, model = "gpt-4o"))
     #task_name = "Transition State Identification"
     #task_description = "The task is identifying the likely transition state structure for a given chemical reaction."
@@ -838,9 +852,10 @@ if __name__ == '__main__':
         "documentation": "https://docs.open-reaction-database.org/en/latest/ord_schema/ord_schema.html#module-ord_schema.message_helpers"
     }]
 
-    with open("ChemGen/generation/experiment/case_study/additional_tool.pickle", "wb") as f:
+    with open("ChemGen/metadata/additional_tool.pickle", "wb") as f:
         pickle.dump(additional_tool, f)
     """
+    
     
     
     
