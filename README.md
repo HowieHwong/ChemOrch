@@ -3,4 +3,4 @@
 
 [![MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/license/mit)
 
-[![LLM Provider](https://img.shields.io/badge/LLM Provider-OpenAI-green.svg)](https://openai.com/)
+[![LLM Provider](https://img.shields.io/badge/LLM%20Provider-OpenAI-white.svg)](https://openai.com/)
