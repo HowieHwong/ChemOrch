@@ -1,1 +1,1 @@
-# ChemOrch - A reliable chemical instruction-response pairs generation tool
+# ChemOrch - A Chemical Task Orchestration Framework
