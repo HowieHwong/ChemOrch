@@ -50,7 +50,7 @@ ChemOrch supports four metadata formats: JSON, CSV, Pickle, and text.
 
 ### 1. Text
 
-You can input your text into a Python string.
+Text data should be provided as a raw Python string. The system will automatically parse the content based on the task type.
 
 ### 2. CSV
 
