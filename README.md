@@ -61,3 +61,74 @@ CC(=O)OC(CC(=O)[O-])C[N+](C)(C)C,3-acetyloxy-4-(trimethylazaniumyl)butanoate
 CC(=O)OC(CC(=O)O)C[N+](C)(C)C,(2-acetyloxy-3-carboxypropyl)-trimethylazanium
 C1=CC(C(C(=C1)C(=O)O)O)O,5,6-dihydroxycyclohexa-1,3-diene-1-carboxylic acid
 ```
+
+### 3. JSON
+
+Currently, ChemOrch only accepts JSON files with two keys. The first key indicates the auxiliary data for the Instruction Generation, while the second key is optional, representing the ground truth of the instruction.
+
+```python
+[
+    {
+        "SMILES": "CC(=O)OC(CC(=O)[O-])C[N+](C)(C)C",
+        "IUPAC Name": "3-acetyloxy-4-(trimethylazaniumyl)butanoate"
+    },
+    {
+        "SMILES": "CC(=O)OC(CC(=O)O)C[N+](C)(C)C",
+        "IUPAC Name": "(2-acetyloxy-3-carboxypropyl)-trimethylazanium"
+    },
+    {
+        "SMILES": "C1=CC(C(C(=C1)C(=O)O)O)O",
+        "IUPAC Name": "5,6-dihydroxycyclohexa-1,3-diene-1-carboxylic acid"
+    }
+]
+```
+
+### 4. Pickle
+
+ChemOrch holds an abundant tool pool that integrates the RDKit and PubChem toolkits. You can extend the tool pool by adding the Pickle file with the required information.
+**The format of our tool pool**
+```python
+metadata = [{
+    "tool": "mol_from_smiles",
+    "module": "rdkit_tool",
+    "description": "Creates an RDKit molecule object from a SMILES string.",
+    "embedding": "The embedding of the tool description",  # 修正拼写错误
+    "parameters": {
+        "smiles": {
+            'smiles': '(str) The SMILES representation of the molecule.'
+        }
+    }
+}]
+```
+**The format of the additional tools**
+```python
+metadata = [{
+    "tool": "smiles_from_compound",
+    "module": "ord_schema.message_helpers",
+    "description": "Fetches or generates a SMILES identifier for a compound. If a SMILES identifier already exists, it is simply returned.",
+    "parameters": {"compound": "reaction_pb2.Compound message."},
+    "documentation": "https://docs.open-reaction-database.org/en/latest/ord_schema/ord_schema.html#module-ord_schema.message_helpers"
+}]
+```
+After you have made the metadata, you should convert it into a Pickle file.
+
+```python
+import pickle
+
+with open('./additional_tools.pkl', 'wb') as f:
+    pickle.dump(metadata, f)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
