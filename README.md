@@ -1,19 +1,15 @@
-# ChemOrch - A Chemical Task Orchestration Framework
+<div align="center"> <h1>ChemOrch 🧪</h1> <h3>Towards Groundbreaking Chemistry Instruction Data Generation</h3> <p> <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.9+-blue.svg"></a> <a href="https://opensource.org/license/mit"><img src="https://img.shields.io/badge/License-MIT-green.svg"></a> <a href="https://openai.com/"><img src="https://img.shields.io/badge/LLM%20Provider-OpenAI-orange.svg"></a> </p> </div>
 
-[![Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
 
-[![MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/license/mit)
 
-[![LLM Provider](https://img.shields.io/badge/LLM%20Provider-OpenAI-orange.svg)](https://openai.com/)
-
-## Key Features
+## ✨ Key Features
 
 - **Smart Tool Selection**: Embedding-based matching and accurate tools distillation with metadata support
 - **Automatic Tool Invocation**: Effective code script generation aligns with the targets of instructions
 - **Resilient Execution**: Multi-layer error recovery (syntax → logic → documentation-based)
 - **Multi-modal Input**: Supports text/JSON/CSV/Pickle metadata formats
 
-## Installation
+## ⚡ Installation
 
 ```bash
 # Clone the repository
@@ -27,7 +23,7 @@ conda create -n ChemOrch python=3.9
 pip install -r requirements.txt
 ```
 
-## Quick Start
+## 🚀 Quick Start
 ```python
 import asyncio
 from ChemOrch import ChemOrch
@@ -50,7 +46,7 @@ async def main():
 asyncio.run(main())
 ```
 
-## Output Formats
+## 📦 Output Formats
 
 **Output format of the IG model**
 ```json
@@ -149,7 +145,7 @@ with open('./additional_tools.pkl', 'wb') as f:
 ```
 The **`example`** document folder contains the example usage, metadata, and output files. Please read them for more details.
 
-## Execution Parameters
+## 📁 Execution Parameters
 
 | Parameter                 | Type | Description                                                  | Example Value&Detailed Requirements                          |
 | :------------------------ | ---- | ------------------------------------------------------------ | ------------------------------------------------------------ |
