@@ -1,4 +1,4 @@
-# <img src="https://raw.githubusercontent.com/ChemOrch/img/atom-solid.svg" width="20" alt="atom icon"> ChemOrch - A Chemical Task Orchestration Framework
+# <img src="https://raw.githubusercontent.com/HowieHwong/ChemOrch/blob/main/img/atom-solid.svg" width="20" alt="atom icon"> ChemOrch - A Chemical Task Orchestration Framework
 
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
 
