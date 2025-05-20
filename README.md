@@ -154,7 +154,7 @@ The **`example`** document folder contains the example usage, metadata, and outp
 | Parameter                 | Type | Description                                                  | Example Value&Detailed Requirements                          |
 | :------------------------ | ---- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | **`task`**                | str  | **Required.** General task category.                         | SMILES Conversion                                            |
-| **`task_description`**    | str  | **Required.**Detailed task objective.                        | Convert canonical SMILES to IUPAC names                      |
+| **`task_description`**    | str  | **Required.** Detailed task objective.                        | Convert canonical SMILES to IUPAC names                      |
 | **`instruction_file`**    | str  | **Required.** Path to the JSON file where generated instructions will be stored. **Only supports JSON format.** | ./instructions/SMILES_to_IUPAC_instructions.json             |
 | **`output_file`**         | str  | **Required.** Path for final output. **Only supports JSON format. ** | ./results/SMILES_to_IUPAC_data_pairs.json                    |
 | **`num`**                 | int  | **Required**. Number of instruction-response pairs to generate. | A number range from 1 to 1000. For large values(>100), use **`batchsize`** to optimize performance. |
