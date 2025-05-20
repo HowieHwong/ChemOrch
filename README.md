@@ -33,15 +33,42 @@ from ChemOrch import ChemOrch
 
 async def main():
     await ChemOrch(
-        task="AI4Chemistry question answering",
-        task_description="The application of AI in chemistry domain.",
-        instruction_file="ChemGen/results/instructions.json",
-        output_file="ChemGen/results/results.json",
-        num=5,
+        task="SMILES conversion",
+        task_description="Predict the IUPAC name of a given compound's SMILES string.",
+        instruction_file="ChemGen/example/instructions.json",
+        output_file="ChemGen/example/instructions_response_pairs.json",
+        num=10,
+        batchsize=10,
+        IG_metadata_type="json",
+        IG_metadata_content="ChemGen/example/example.json",
+        RG_metadata_type="text",
+        RG_metadata_content="Please use the `get_compounds` tool in PubChem module to solve the tasks",
+        constraint="Your instruction should focus on specific tasks and give specific values based on the metadata content."
     )
 
 asyncio.run(main())
 ```
+
+## Output Formats
+
+**Output format of the IG model**
+```json
+    {
+        "task": "SMILES conversion",
+        "task_description": "Predict the IUPAC name of a given compound's SMILES string.",
+        "constraint": "Your instruction should focus on specific tasks and give specific values based on the metadata content.",
+        "instruction": "Predict the IUPAC name for the compound with the SMILES string 'CC(=O)OC(CC(=O)[O-])C[N+](C)(C)C'."
+    }
+```
+**Output format of the RG model**
+```json
+    {
+        "task": "SMILES conversion",
+        "instruction": "Translate the SMILES 'CCC(C)(C(C(=O)O)O)O' into its IUPAC nomenclature.",
+        "response": "The IUPAC nomenclature for the provided SMILES string 'CCC(C)(C(C(=O)O)O)O' is: 2,3-dihydroxy-3-methylpentanoic acid.\n\nThis nomenclature breaks down as follows: the main chain consists of five carbon atoms (pentanoic acid), the third carbon atom has a methyl group attached (3-methyl), and there are hydroxyl groups on the second and third carbons (2,3-dihydroxy). The structure ends with a carboxylic acid functional group."
+    }
+```
+
 ## Metadata File Specification
 
 ChemOrch supports four metadata formats: JSON, CSV, Pickle, and text.
