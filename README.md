@@ -119,6 +119,22 @@ with open('./additional_tools.pkl', 'wb') as f:
     pickle.dump(metadata, f)
 ```
 
+## Execution Parameters
+
+| Parameter                 | Type | Description                                                  | Example Value&Detailed Requirements                          |
+| :------------------------ | ---- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| **`task`**                | str  | **Required.** General task category.                         | SMILES Conversion                                            |
+| **`task_description`**    | str  | **Required.**Detailed task objective.                        | Convert canonical SMILES to IUPAC names                      |
+| **`instruction_file`**    | str  | **Required.** Path to the JSON file where generated instructions will be stored. **Only supports JSON format.** | ./instructions/SMILES_to_IUPAC_instructions.json             |
+| **`output_file`**         | str  | **Required.** Path for final output. **Only supports JSON format. ** | ./results/SMILES_to_IUPAC_data_pairs.json                    |
+| **`num`**                 | int  | **Required**. Number of instruction-response pairs to generate. | A number range from 1 to 1000. For large values(>100), use **`batchsize`** to optimize performance. |
+| **`batchsize`**           | int  | *Optional*. Number of instructions generated per API call.   | Default to 10. You can choose a suitable value according to your API key limitation. |
+| **`IG_metadata_type`**    | str  | *Conditional*. Metadata format for Instruction Generation. Required if `IG_metadata_content` is provided. | json/csv/txt                                                 |
+| **`IG_metadata_content`** | str  | *Conditional*. Content source for the IG model.              | - For `json`/`csv`: File path (e.g., `"./data/compounds.csv"`)<br>- For `text`: Direct string input (e.g., `"aspirin, paracetamol"`) |
+| **`RG_metadata_type`**    | str  | *Conditional*. Metadata format for Response Generation.      | pickle/txt                                                   |
+| **`RG_metadata_content`** | str  | *Conditional*. Content source for the RG model.              | \- For `pickle`: Path to serialized file (e.g., `"./tools/additional_tools.pkl"`)<br/>\- For `text`: Direct string input(e.g., Please use the **`get_compounds`** function in the PubChem module to solve these tasks.) |
+| **`constraint`**          | str  | *Optional*. Custom generation constraints in natural language for the IG model. | 1. The generated instructions should be pitched at the knowledge level of senior high school students.<br>2. Each instruction has to convey the task details in fewer words while ensuring the instruction is clear. |
+
 
 
 
