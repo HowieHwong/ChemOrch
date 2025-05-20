@@ -146,6 +146,7 @@ import pickle
 with open('./additional_tools.pkl', 'wb') as f:
     pickle.dump(metadata, f)
 ```
+The **`example`** document folder contains the example usage, metadata, and output files. Please read them for more details.
 
 ## Execution Parameters
 
