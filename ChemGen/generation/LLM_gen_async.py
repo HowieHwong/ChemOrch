@@ -103,7 +103,7 @@ async def generate_planning_steps(instruction: str, model: str = "gpt-4o", metad
     return extract_instructions(response)
 
 
-async def generate_instructions(user_task: str, task_description: str, n: int, mode: str, metadata: str = None, custom_constraint: str = "None", model: str = "gpt-4o") -> list:
+async def generate_instructions(user_task: str, task_description: str, n: int, metadata: str = None, custom_constraint: str = "None", model: str = "gpt-4o") -> list:
     """Generate a diverse set of instructions for a given user task using a language model.
 
     Args:
@@ -117,7 +117,7 @@ async def generate_instructions(user_task: str, task_description: str, n: int, m
         list: A list of generated instructions.
     """
     custom_constraint = custom_constraint or "No additional constraints."
-    user_prompt = f"{user_task}\ntask description: {task_description}\nmetadata: {metadata}\n{INSTRUCTION_GENERATION_PROMPT.format(n=n, custom_constraint=custom_constraint, mode=mode)}"
+    user_prompt = f"{user_task}\ntask description: {task_description}\nmetadata: {metadata}\n{INSTRUCTION_GENERATION_PROMPT.format(n=n, custom_constraint=custom_constraint)}"
 
     response = await api_tools.get_response(
         prompt=user_prompt,
