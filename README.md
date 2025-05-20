@@ -114,13 +114,14 @@ Currently, ChemOrch only accepts JSON files with two keys. The first key indicat
 ### 4. Pickle
 
 ChemOrch holds an abundant tool pool that integrates the RDKit and PubChem toolkits. You can extend the tool pool by adding the Pickle file with the required information.
+
 **The format of our tool pool**
 ```python
 metadata = [{
     "tool": "mol_from_smiles",
     "module": "rdkit_tool",
     "description": "Creates an RDKit molecule object from a SMILES string.",
-    "embedding": "The embedding of the tool description",  # 修正拼写错误
+    "embedding": "The embedding of the tool description",
     "parameters": {
         "smiles": {
             'smiles': '(str) The SMILES representation of the molecule.'
