@@ -163,7 +163,8 @@ with open('./additional_tools.pkl', 'wb') as f:
 | **`RG_metadata_content`** | str  | *Conditional*. Content source for the RG model.              | \- For `pickle`: Path to serialized file (e.g., `"./tools/additional_tools.pkl"`)<br/>\- For `text`: Direct string input(e.g., Please use the **`get_compounds`** function in the PubChem module to solve these tasks.) |
 | **`constraint`**          | str  | *Optional*. Custom generation constraints in natural language for the IG model. | 1. The generated instructions should be pitched at the knowledge level of senior high school students.<br>2. Each instruction has to convey the task details in fewer words while ensuring the instruction is clear. |
 
-
+## License
+MIT - See [MIT License](https://opensource.org/license/mit) for details.
 
 
 
