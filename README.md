@@ -1,7 +1,5 @@
 # ChemOrch - A Chemical Task Orchestration Framework
 
-<img src="https://raw.githubusercontent.com/ChemOrch/img/atom-solid.svg" width="20" alt="icon">
-
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
 
 [![MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/license/mit)
