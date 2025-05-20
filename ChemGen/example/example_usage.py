@@ -1,5 +1,5 @@
 import asyncio
-from ChemOrch import ChemOrch
+from ChemGen.generation.ChemOrch import ChemOrch
 
 async def main():
     await ChemOrch(
