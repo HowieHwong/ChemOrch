@@ -78,7 +78,7 @@ Text data should be provided as a raw Python string. The system will automatical
 
 ### 2. CSV
 
-Currently, ChemOrch only accepts CSV files with two columns. The first column indicates the auxiliary data for the Instruction Generation, while the second column is optional, representing the ground truth of the instruction.
+Currently, ChemOrch only accepts CSV files with two columns. The first column indicates the auxiliary data for the Instruction Generation, while the second column is *optional*, representing the ground truth of the instruction.
 ```csv
 SMILES,IUPAC Name
 CC(=O)OC(CC(=O)[O-])C[N+](C)(C)C,3-acetyloxy-4-(trimethylazaniumyl)butanoate
@@ -88,7 +88,7 @@ C1=CC(C(C(=C1)C(=O)O)O)O,5,6-dihydroxycyclohexa-1,3-diene-1-carboxylic acid
 
 ### 3. JSON
 
-Currently, ChemOrch only accepts JSON files with two keys. The first key indicates the auxiliary data for the Instruction Generation, while the second key is optional, representing the ground truth of the instruction.
+Currently, ChemOrch only accepts JSON files with two keys. The first key indicates the auxiliary data for the Instruction Generation, while the second key is *optional*, representing the ground truth of the instruction.
 
 ```python
 [
@@ -152,7 +152,7 @@ The **`example`** document folder contains the example usage, metadata, and outp
 | **`task`**                | str  | **Required.** General task category.                         | SMILES Conversion                                            |
 | **`task_description`**    | str  | **Required.** Detailed task objective.                        | Convert canonical SMILES to IUPAC names                      |
 | **`instruction_file`**    | str  | **Required.** Path to the JSON file where generated instructions will be stored. **Only supports JSON format.** | ./instructions/SMILES_to_IUPAC_instructions.json             |
-| **`output_file`**         | str  | **Required.** Path for final output. **Only supports JSON format. ** | ./results/SMILES_to_IUPAC_data_pairs.json                    |
+| **`output_file`**         | str  | **Required.** Path for final output. **Only supports JSON format.** | ./results/SMILES_to_IUPAC_data_pairs.json                    |
 | **`num`**                 | int  | **Required**. Number of instruction-response pairs to generate. | A number range from 1 to 1000. For large values(>100), use **`batchsize`** to optimize performance. |
 | **`batchsize`**           | int  | *Optional*. Number of instructions generated per API call.   | Default to 10. You can choose a suitable value according to your API key limitation. |
 | **`IG_metadata_type`**    | str  | *Conditional*. Metadata format for Instruction Generation. Required if `IG_metadata_content` is provided. | json/csv/text                                                 |
