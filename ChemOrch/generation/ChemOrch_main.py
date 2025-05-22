@@ -19,7 +19,7 @@ script_fixing_num_threshold = 3
 error_fixing_num_threshold = 3
 effectiveness_checking_num_threshold = 5
 # create a AsyncOpenAI client
-aclient = AsyncOpenAI(api_key='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')
+aclient = AsyncOpenAI(api_key='')
 # load tools embedding and infomation
 with open('ChemOrch/generation/tools_embedding.pkl', 'rb') as f:
     tools_info = pickle.load(f)

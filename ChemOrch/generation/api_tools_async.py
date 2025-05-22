@@ -152,7 +152,7 @@ async def get_response(model='chatgpt-4o-latest', prompt=None, temperature=0.001
         )
     else:
         print('Using OpenAI API')
-        aclient = AsyncOpenAI(api_key="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")
+        aclient = AsyncOpenAI(api_key="")
     
     if model in ['o3-mini', 'gpt-4o', 'gpt-4o-mini']:
         messages = []
@@ -210,4 +210,4 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
-    #print(get_response(model='gpt-4o-mini', prompt='What is the capital of France?'))
+    
