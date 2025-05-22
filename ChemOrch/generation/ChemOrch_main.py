@@ -12,15 +12,18 @@ from openai import AsyncOpenAI
 from ChemOrch.generation.LLM_gen_async import generate_instructions, generate_planning_steps, generate_tool_descriptions
 from ChemOrch.generation.Web_retrieval_async import web_search_retrieve
 
-# Define the threshold for tool distilling. If the number of tools overnumbers the threshold, the probability of removing indirectly related tools will be higher.
-threshold_for_tool_distilling = 5
+# Define the hyperparameters
+tool_distilling_num_threshold = 5
+top_k = 5
+script_fixing_num_threshold = 3
+error_fixing_num_threshold = 3
+effectiveness_checking_num_threshold = 5
 # create a AsyncOpenAI client
 aclient = AsyncOpenAI(api_key='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')
 # load tools embedding and infomation
 with open('ChemOrch/generation/tools_embedding.pkl', 'rb') as f:
     tools_info = pickle.load(f)
-    f.close()
-
+    
 # ------------------- System Prompts -------------------
 Tool_Selection_Prompt = """
 I will give you the task, a tool name, and its description.
@@ -57,7 +60,7 @@ Instructions:
 check if the task marks specific tools to use.
 3. Analyse the task and extract the final targets of the task. Regarding the tools can't solve the
 final targets of the task as useless tools, you should focus on the final targets of the task.
-4. If the number of tools overnumbers the threshold:{threshold_for_tool_distilling}, you
+4. If the number of tools overnumbers the threshold:{tool_distilling_num_threshold}, you
 should think more about finding and removing indirectly related tools. But if there is only one tool left,
 you should think more about retaining it.
 Output format:
@@ -203,6 +206,22 @@ Return the polished response only. **Do not add any useless prefixes or suffixes
 
 # ------------------- Function Definitions -------------------
 async def instruction_generation(task: str, task_description: str, instruction_file: str, constraint: str = None, batchsize: int = 10,  num: int = 10, metadata: str = None, metadata_type: str = None):
+    """
+    Generate instructions for the given task and save them to a file.
+    
+    Args:
+        task (str): General task category.
+        task_description (str): Detailed task objective.
+        instruction_file (str): The file path where the generated instructions will be saved.
+        constraint (str, optional): Custom constraints for the instruction generation. Defaults to None.
+        batchsize (int, optional): The number of instructions to generate in each batch. Defaults to 10.
+        num (int, optional): The total number of instructions to generate. Defaults to 10.
+        metadata (str, optional): The metadata for the task. Defaults to None.
+        metadata_type (str, optional): The type of metadata. Defaults to None.
+    
+    Returns:
+        None
+    """
 
     if metadata_type and metadata:
         if metadata_type == "json":
@@ -263,7 +282,6 @@ async def instruction_generation(task: str, task_description: str, instruction_f
     
 async def chat_with_model(system_prompt: str, user_prompt: str, model: str = "gpt-4o") -> str:
     
-
     response = await aclient.chat.completions.create(
         model=model,
         messages=[
@@ -287,7 +305,9 @@ async def chat_with_CoT_model(user_prompt: str, model: str = "o3-mini") -> str:
     return response.choices[0].message.content
 
 def script_error_logging(instruction: str, tool_name: str, module_name: str, file_name: str) -> None:
-    
+    """
+    Log the error information to a JSON file."""
+
     logging_info = [
         {
             "instruction": instruction,
@@ -345,15 +365,9 @@ def tools_embedding(file_path: str) -> None:
             pickle.dump(tools_embedding, f)
             print(f"Tools embedding saved to tools_embedding.pkl")
 
-async def script_fixing(script: str, script_fixing_num: int = 3, model: str = "o1-mini") -> str:
+async def script_fixing(script: str, script_fixing_num: int = script_fixing_num_threshold) -> str:
     """
-    Check and fix the generated script for grammar and encoding errors.
-    
-    Addtional tips for this function:
-    1. This function is used for ensuring there is no useless prefix or suffix and no encoding errors in the generated script.
-    2. After numerous testing, the model o3-mini seems to have good performance in fixing the errors.
-    3. You can change the model to o3-mini by changing the model parameter in the function.
-    4. If the effectiveness is stable, you can consider delete the try-except block and the parameter checking_num."""
+    Check and fix the generated script for grammar errors."""
 
     while script_fixing_num >= 0:
         
@@ -392,7 +406,7 @@ def calculate_cosine_similarity(description_embedding: list[float], tool_embeddi
 
     return cosine_similarity.item()
 
-async def topk_tools_selection(tool_descriptions: list[str], top_k: int = 5) -> list:
+async def topk_tools_selection(tool_descriptions: list[str], top_k: int = top_k) -> list:
     """
     Select the top k tools based on the cosine similarity between the needed tool description and the tool function embedding."""
     
@@ -470,6 +484,7 @@ async def tool_selection(instruction: str, tool_descriptions: list[str], k: int 
 async def tools_distilling(instruction: str, tools_list: list[int], metadata: str = None, model: str = "o3-mini") -> list[int]:
     """
     Distill the tools after the tool selection process, remove the tools that are not the expert for the task."""
+    
     tools = []
     for tool in tools_list:
         if tool!= "no":
@@ -516,16 +531,19 @@ async def tool_calling(instruction: str, planning_steps: list[str], tool_list: l
     Call the tools have been selected for solving the user task.There are four module in this function:
     1. Parameters filling and checking: Fill the parameters with specific values and check whether the parameters are in correct format according to tools' information.
     2. Script generation: Generate the script for calling the tool with the given parameters.
-    3. Error processing: If the script can't be executed successfully, fix the error according to the error message and try again.
-    4. Effectiveness confirmation: Judge whether the results generated by the tools are useful and correct for solving the task. Fix the script according to the documentations(pubchempy and rdkit) online if necessary.
+    3. Error fixing: If the script can't be executed successfully, fix the error according to the error message.
+    4. Effectiveness check: Judge whether the results generated by the tools are useful and correct for solving the task. Fix the script according to the documentations if necessary.
     
     Args:
         instruction (str): The user instruction for the task.
+        planning_steps (list[str]): The planning steps for solving the task.
         tool_list (list[int]): The list of tool indexes selected for solving the task.
+        metadata (str, optional): The metadata for the task. Defaults to None.
+        metadata_type (str, optional): The type of metadata. Defaults to None.
         model (str, optional): The model used for the chatbot. Defaults to "gpt-4o".
         planning_steps (list[str], optional): The planning steps for solving the task.
         error_fixing_num (int, optional): The maximum number of error fixing steps. Defaults to 2.
-        effectiveness_confirmation_num (int, optional): The maximum number of effectiveness confirmation steps. Defaults to 3.
+        effectiveness_checking_num (int, optional): The maximum number of effectiveness check steps. Defaults to 3.
         diversity_generation (bool, optional): Whether to generate diversity results. Defaults to True.
 
     Returns:
@@ -676,15 +694,17 @@ async def polish(instruction: str, raw_response: str) -> str:
     response = await chat_with_model(system_prompt=Polishment_Prompt, user_prompt=user_prompt, model="gpt-4o")
     return response
 
-async def tools_retrieval(instruction: str, RG_metadata_type: str = None, RG_metadata_content: str = None, error_fixing_num: int = 2, effectiveness_confirmation_num: int = 3, diversity_generation: bool = False) -> str:
+async def tools_retrieval(instruction: str, RG_metadata_type: str = None, RG_metadata_content: str = None, error_fixing_num: int = 2, effectiveness_check_num: int = 3, diversity_generation: bool = False) -> str:
     """
     The main function for the tools retrieval system.
     
     Args:
         instruction (str): The user instruction for the task.
+        RG_metadata_type (str, optional): The type of metadata. Defaults to None.
+        RG_metadata_content (str, optional): The content of metadata. Defaults to None.
         model (str, optional): The model used for the chatbot. Defaults to "gpt-4o".
         error_fixing_num (int, optional): The maximum number of error fixing steps. Defaults to 2.
-        effectiveness_confirmation_num (int, optional): The maximum number of effectiveness confirmation steps. Defaults to 3.
+        effectiveness_check_num (int, optional): The maximum number of effectiveness check steps. Defaults to 3.
         diversity_generation (bool, optional): Whether to generate diversity results. Defaults to False.
 
     Returns:
@@ -707,7 +727,7 @@ async def tools_retrieval(instruction: str, RG_metadata_type: str = None, RG_met
         tools_list = await tool_selection(instruction, tool_descriptions, metadata=metadata)
         print(f"tools_list: {[tools_info[tool]['tool'] for tool in tools_list if tool != 'no']}")
         
-    tool_calling_result =await tool_calling(instruction, planning_steps, tools_list, metadata=metadata, metadata_type=RG_metadata_type, error_fixing_num=error_fixing_num, effectiveness_checking_num=effectiveness_confirmation_num, diversity_generation=diversity_generation)
+    tool_calling_result =await tool_calling(instruction, planning_steps, tools_list, metadata=metadata, metadata_type=RG_metadata_type, error_fixing_num=error_fixing_num, effectiveness_checking_num=effectiveness_check_num, diversity_generation=diversity_generation)
 
     prompt = f"{Web_Search_Prompt}\n\nTask: {instruction}\nPlanning steps: {planning_steps}"
      
@@ -725,7 +745,7 @@ async def tools_retrieval(instruction: str, RG_metadata_type: str = None, RG_met
                    
     answer = await answer_generation(instruction, tool_calling_result, model="gpt-4o")
     return await polish(instruction, answer)
-        
+      
 async def instruction_response_pair_generation(user_query: str, instruction: str, output_file_path: str, idx: int, metadata: str = None, metadata_type: str = None):
     """
     Generate the instruction response pair for the given user query and instruction and save it to a file.
@@ -735,6 +755,8 @@ async def instruction_response_pair_generation(user_query: str, instruction: str
         instruction (str): The specific instruction for the task.
         output_file_path (str): The path to the output file.
         idx (int): The index of the instruction response pair.
+        metadata (str, optional): The metadata for the response generation. Defaults to None.
+        metadata_type (str, optional): The type of metadata. Defaults to None.
     
     Returns:
         None
@@ -761,20 +783,22 @@ async def instruction_response_pair_generation(user_query: str, instruction: str
             json.dump(instruction_response_pairs, f, indent=4)
 
     print(f"index: {idx}, instruction response pair has been created successfully.\n")
-    
-async def concurrent_instruction_response_pair_generation(file_path: str, output_file_path: str, metadata: str = None, metadata_type: str = None, concurrent_num: int = 10):
-    """
+
+async def response_generation(file_path: str, output_file_path: str, metadata: str = None, metadata_type: str = None, concurrent_num: int = 10):
+    """    
     Generate the instruction response pairs concurrently for the given file.
 
     Args:
         file_path (str): The path to the input file containing the instructions.
         output_file_path (str): The path to the output file.
+        metadata (str, optional): The metadata for the response generation. Defaults to None.
+        metadata_type (str, optional): The type of metadata. Defaults to None.
         concurrent_num (int, optional): The number of concurrent tasks. Defaults to 10.
     
     Returns:
         None
     """
-
+    
     with open(file_path, 'r', encoding= 'UTF-8') as f:
         data = json.load(f)
     
@@ -795,15 +819,33 @@ async def concurrent_instruction_response_pair_generation(file_path: str, output
     
     print(f"All instruction response pairs have been created successfully.\n")
 
-async def ChemOrch(task: str, task_description: str, instruction_file: str, output_file: str, num: int = 10, 
+async def ChemOrch(task: str, task_description: str, instruction_file: str, output_file: str, num: int, 
                    batchsize: int = 10, IG_metadata_type: str = None, RG_metadata_type: str = None, IG_metadata_content: str = None, RG_metadata_content: str = None, 
                    constraint: str = None):
+    """
+    The main function for the ChemOrch system. Generate high-quality instruction-response pairs for the given task.
+
+    Args:
+        task (str): General task category.
+        task_description (str): Detailed task objective.
+        instruction_file (str): Path to the JSON file where generated instructions will be stored. 
+        output_file (str): The path to the output file.
+        num (int): Number of instruction-response pairs to generate.
+        batchsize (int, optional): Number of instructions generated per API call. Defaults to 10.
+        IG_metadata_type (str, optional): The type of metadata for instruction generation. Defaults to None.
+        RG_metadata_type (str, optional): The type of metadata for response generation. Defaults to None.
+        IG_metadata_content (str, optional): The content of metadata for instruction generation. Defaults to None.
+        RG_metadata_content (str, optional): The content of metadata for response generation. Defaults to None.
+        constraint (str, optional): The constraint for generating instructions. Defaults to None.
     
+    Returns:
+        None
+    """
     await instruction_generation(task, task_description, instruction_file, num = num, batchsize = batchsize, metadata = IG_metadata_content, metadata_type = IG_metadata_type, constraint = constraint)
    
-    await concurrent_instruction_response_pair_generation(instruction_file, output_file, metadata=RG_metadata_content, metadata_type = RG_metadata_type)
+    await response_generation(instruction_file, output_file, metadata=RG_metadata_content, metadata_type = RG_metadata_type)
     
-#Example usage:
+# Example usage:
 if __name__ == '__main__':
     
     if sys.platform.startswith('win'):
@@ -816,7 +858,7 @@ if __name__ == '__main__':
     ig_metadata_type = "json"
     ig_metadata_content = "ChemOrch/example/example.json"
     constraint = "Your instruction should provide specific value based on the metadata information"
-    rg_metadata_type = "txt"
+    rg_metadata_type = "text"
     rg_metadata_content = "Please use the `get_compounds` tool in PubChem module to solve the tasks"
     
     asyncio.run(ChemOrch(task = task,
