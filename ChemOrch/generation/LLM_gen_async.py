@@ -2,6 +2,7 @@
 # Local module imports
 import ChemOrch.generation.api_tools_async as api_tools
 from ChemOrch.utils.extraction import extract_instructions
+import asyncio
 
 # ------------------- System Prompts -------------------
 
@@ -149,25 +150,32 @@ async def generate_tool_descriptions(planning_steps: list, model: str = "gpt-4o"
     return extract_instructions(response)
 
 # ------------------- Execution Example -------------------
-
-if __name__ == "__main__":
+async def main():
+    
     user_task = "User Task: Toxicity Prediction"
+    task_description = "Task Description: Predict the toxicity of a given chemical compound."
     instruction_examples = "Instruction Examples:\nExample1:Is methane toxic?\nExample2:What is the acute toxicity of white phosphorus"
     custom_constraint = "Each instruction must be concise and should not exceed 20 words."
 
-    generated_instructions = generate_instructions(user_task, n=5,instruction_examples=instruction_examples, custom_constraint=custom_constraint)
+    generated_instructions = await generate_instructions(user_task, task_description, n=5, custom_constraint=custom_constraint)
     print("Generated Instructions:")
     for idx, instruction in enumerate(generated_instructions, 1):
         print(f"{idx}. {instruction}")
 
     test_instruction = "Assess the acute toxicity of benzene exposure through inhalation."
-    generated_steps = generate_planning_steps(test_instruction)
+    generated_steps = await generate_planning_steps(test_instruction)
 
     print("\nGenerated Planning Steps:")
     for idx, step in enumerate(generated_steps, 1):
         print(f"{idx}. {step}")
-    
-    tool_descrition = generate_tool_descriptions(generated_steps)
+
+    tool_descrition = await generate_tool_descriptions(generated_steps)
     print("\nGenerated Tool Descriptions:")
     for idx, tool in enumerate(tool_descrition, 1):
-        print(f"{idx}. {tool}")
+        print(f"{idx}. {tool}")    
+
+
+if __name__ == "__main__":
+
+    asyncio.run(main())
+    
