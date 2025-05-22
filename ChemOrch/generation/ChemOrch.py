@@ -803,10 +803,6 @@ async def ChemOrch(task: str, task_description: str, instruction_file: str, outp
    
     await concurrent_instruction_response_pair_generation(instruction_file, output_file, metadata=RG_metadata_content, metadata_type = RG_metadata_type)
     
-    
-    
-
-
 #Example usage:
 if __name__ == '__main__':
     
@@ -835,19 +831,7 @@ if __name__ == '__main__':
                          RG_metadata_content = rg_metadata_content,
                          constraint = constraint,
                          ))
-    
-    """
-    additional_tool = [{
-        "tool": "smiles_from_compound",
-        "module": "ord_schema.message_helpers",
-        "description": "Fetches or generates a SMILES identifier for a compound. If a SMILES identifier already exists, it is simply returned.",
-        "parameters": {"compound": "reaction_pb2.Compound message."},
-        "documentation": "https://docs.open-reaction-database.org/en/latest/ord_schema/ord_schema.html#module-ord_schema.message_helpers"
-    }]
-
-    with open("ChemOrch/metadata/additional_tool.pickle", "wb") as f:
-        pickle.dump(additional_tool, f)
-    """
+       
 
 
 
