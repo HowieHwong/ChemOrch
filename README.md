@@ -26,7 +26,7 @@ pip install -r requirements.txt
 ## 🚀 Quick Start
 
 Please fill in the API keys before using ChemOrch.
-`ChemOrch_main.py`, `api_tools_async.py`, and `Web_retrieval_async.py` need API keys filling.
+**`ChemOrch_main.py`**, **`api_tools_async.py`**, and **`Web_retrieval_async.py`** need API keys filling.
 ```python
 import asyncio
 from ChemOrch import ChemOrch
