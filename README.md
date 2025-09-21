@@ -165,6 +165,17 @@ The **`example`** document folder contains the example usage, metadata, and outp
 | **`RG_metadata_content`** | str  | *Conditional*. Content source for the RG model.              | \- For `pickle`: Path to serialized file (e.g., `"./tools/additional_tools.pkl"`)<br/>\- For `text`: Direct string input(e.g., Please use the **`get_compounds`** function in the PubChem module to solve these tasks.) |
 | **`constraint`**          | str  | *Optional*. Custom generation constraints in natural language for the IG model. | 1. The generated instructions should be pitched at the knowledge level of senior high school students.<br>2. Each instruction has to convey the task details in fewer words while ensuring the instruction is clear. |
 
+## Citation
+
+```bibtex
+@inproceedings{huang2025chemorch,
+  title     = {ChemOrch: Empowering LLMs with Chemical Intelligence via Groundbreaking Synthetic Instructions},
+  author    = {Huang, Yue and Jiang, Zhengzhe and Luo, Xiaonan and Guo, Kehan and Zhuang, Haomin and Zhou, Yujun and Yuan, Zhengqing and Sun, Xiaoqi and Schleinitz, Jules and Wang, Yanbo and Zhang, Shuhao and Surve, Mihir and Chawla, Nitesh V and Wiest, Olaf and Zhang, Xiangliang},
+  booktitle = {Proceedings of the 39th International Conference on Neural Information Processing Systems (NeurIPS)},
+  year      = {2025}
+}
+```
+
 ## License
 MIT - See [MIT License](https://opensource.org/license/mit) for details.
 
