@@ -1,6 +1,6 @@
 <div align="center"><img src='img/logo.png' style="width: 300px; height: auto;"></div>
 <div align="center"> 
-  <h1>ChemOrch (NeurIPS 2025) 🧪</h1> 
+  <h1>ChemOrch: Empowering LLMs with Chemical Intelligence via Synthetic Instructions (NeurIPS 2025) 🧪</h1> 
   <h3>Towards Groundbreaking Chemistry Instruction Data Generation</h3> 
   <p> 
     <a href="https://www.python.org/">
