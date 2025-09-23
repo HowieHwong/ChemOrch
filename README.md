@@ -1,5 +1,22 @@
 <div align="center"><img src='img/logo.png' style="width: 300px; height: auto;"></div>
-<div align="center"> <h1>ChemOrch (NeurIPS 2025) 🧪</h1> <h3>Towards Groundbreaking Chemistry Instruction Data Generation</h3> <p> <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.9+-blue.svg"></a> <a href="https://opensource.org/license/mit"><img src="https://img.shields.io/badge/License-MIT-green.svg"></a> <a href="https://openai.com/"><img src="https://img.shields.io/badge/LLM%20Provider-OpenAI-orange.svg"></a> </p> </div>
+<div align="center"> 
+  <h1>ChemOrch (NeurIPS 2025) 🧪</h1> 
+  <h3>Towards Groundbreaking Chemistry Instruction Data Generation</h3> 
+  <p> 
+    <a href="https://www.python.org/">
+      <img src="https://img.shields.io/badge/Python-3.9+-blue.svg">
+    </a> 
+    <a href="https://opensource.org/license/mit">
+      <img src="https://img.shields.io/badge/License-MIT-green.svg">
+    </a> 
+    <a href="https://openai.com/">
+      <img src="https://img.shields.io/badge/LLM%20Provider-OpenAI-orange.svg">
+    </a> 
+    <a href="https://arxiv.org/abs/2509.16543">
+      <img src="https://img.shields.io/badge/arXiv-2509.16543-b31b1b.svg">
+    </a>
+  </p> 
+</div>
 
 
 
